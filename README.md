@@ -2,7 +2,7 @@
 
 ## Overview
 
-This service aims to create a Credit Card Recommendation Service using OpenAI and external APIs. The service allows users to inquire about the best credit card to use for a specific merchant and receive recommendations based on merchant information and credit card rewards.
+This service aims to revolutionize the Credit Card Recommendation experience by allowing users to inquire about the best credit cards for one or more merchants simultaneously. Users can receive comprehensive recommendations based on a list of merchants and their corresponding credit card rewards.
 
 ## Components
 
@@ -12,9 +12,9 @@ The project utilizes the OpenAI GPT-3.5 Turbo model for natural language process
 
 ### Credit Card Recommendation
 
-The service includes a function to extract the merchant name from user queries. It makes an API call to the merchant credit card reward [API](https://rapidapi.com/max-now-max-now-default/api/merchant-credit-card-reward) provided by Heymax AI to get information about credit card rewards for a specific merchant. This can also be achieved by querying the database and obtaining the respective credit card data for a specific merchant. This process is called Retrieval-Augmented Generation.
+The service  supports queries for one or more merchants. It includes a function to extract the list of merchant names from user queries. The system then makes API calls to the merchant credit card reward API provided by Heymax AI, obtaining information about credit card rewards for each specified merchant. Alternatively, this information can be retrieved by querying the database for the respective credit card data for each merchant—a process known as Retrieval-Augmented Generation.
 
-The obtained data is used in conjunction with the user's query to prompt the OpenAI model for credit card recommendations.
+The obtained data is utilized with the user's query to prompt the OpenAI model for comprehensive credit card recommendations tailored to the specified list of merchants.
 
 Here are the prompt training examples used for the OpenAI model:
 
@@ -22,7 +22,7 @@ Here are the prompt training examples used for the OpenAI model:
 const messages = [
    {
         role: "user",
-        content: `Context: User is asking about merchant names. Return only the name of the merchant if mentioned in the query.`,
+        content: `Context: User is providing a list of one or more merchants. Return only the names of the merchants if mentioned in the query.`,
    },
    {
         role: "user",
@@ -30,7 +30,7 @@ const messages = [
    },
   {
     role: "user",
-    content: `Context: User is asking about which credit cards are best to be used for the given merchant. Make sure to be straight to the point.`,
+    content: `Context: User is asking about which credit cards are best to be used for the given list of merchants. Make sure to be straight to the point.`,
   },
   { role: "user", content: `Query: ${query}` },
   {
@@ -46,7 +46,7 @@ const messages = [
 
 ```json
 {
-  "query": "Which card is best for shopping with merchant Singapore airline."
+  "query": "Which cards are best for shopping with merchants: Singapore Airlines, Nike, and Apple Store."
 }
 ```
 
@@ -54,8 +54,8 @@ const messages = [
 
 ```json
 {
-  "response": "Based on the available credit cards, the best card for shopping with Singapore Airlines would be the American Express Singapore Airlines Business (HighFlyer) Card. It offers a high reward rate of 8.5 miles per dollar spent on Singapore Airlines flights when booked through the HighFlyer Account on the SIA website. It also provides a signup bonus of 30,000 HighFlyer Points when you spend S$4,000 within the first 3 months. The annual fee for this card is S$301.79. You can find more information and apply for the card on the American Express website."
+  "response": "Based on the available credit cards, the following recommendations are provided:\n\n1. For Singapore Airlines: [Credit Card Information]\n2. For Nike: [Credit Card Information]\n3. For Apple Store: [Credit Card Information]\n\nThese recommendations are tailored to maximize your rewards for each specific merchant. For detailed information on each credit card, please refer to the respective issuer's website."
 }
 ```
 
-Feel free to use and contribute to this Credit Card Recommendation Service!
+Now, users can efficiently explore the best credit card options for their preferred list of merchants in a single interaction.
