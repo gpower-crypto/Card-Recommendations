@@ -59,3 +59,7 @@ const messages = [
 ```
 
 Now, users can efficiently explore the best credit card options for their preferred list of merchants in a single interaction.
+
+### Possible Use Cases:
+
+- **Users can receive optimal card and reward suggestions from a selection of merchants based on their current or chosen location, store category, and store open/closed status.**
