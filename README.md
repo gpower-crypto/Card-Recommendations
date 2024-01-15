@@ -12,7 +12,7 @@ The project utilizes the OpenAI GPT-3.5 Turbo model for natural language process
 
 ### Credit Card Recommendation
 
-The service includes a function to extract the merchant name from user queries. It makes an API call to the merchant credit card reward [API](https://rapidapi.com/max-now-max-now-default/api/merchant-credit-card-reward) provided by Heymax AI to get information about credit card rewards for a specific merchant. This can also be achieved by querying the database and obtaining the respective credit card information. This process is called Retrieval-Augmented Generation.
+The service includes a function to extract the merchant name from user queries. It makes an API call to the merchant credit card reward [API](https://rapidapi.com/max-now-max-now-default/api/merchant-credit-card-reward) provided by Heymax AI to get information about credit card rewards for a specific merchant. This can also be achieved by querying the database and obtaining the respective credit card data for a specific merchant. This process is called Retrieval-Augmented Generation.
 
 The obtained data is used in conjunction with the user's query to prompt the OpenAI model for credit card recommendations.
 
