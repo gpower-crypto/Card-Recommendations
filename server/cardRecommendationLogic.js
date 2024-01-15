@@ -4,13 +4,13 @@ const axios = require("axios");
 const OPENAI_API_KEY = "###";
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
-// Function to get the merchant name from the query
-async function getMerchantName(query) {
+// Function to get the list of merchants from the query
+async function getMerchantsList(query) {
   try {
     const messages = [
       {
         role: "user",
-        content: `Context: User is asking about merchant names. Return only the name of the merchant if mentioned in the query.`,
+        content: `Context: User is providing a list of one or more merchants. Return only the names of the merchants if mentioned in the query.`,
       },
       {
         role: "user",
@@ -24,15 +24,20 @@ async function getMerchantName(query) {
       return null;
     }
 
-    return response.trim();
+    // Extract and return the list of merchants
+    const merchantsList = response
+      .trim()
+      .split(",")
+      .map((merchant) => merchant.trim());
+    return merchantsList;
   } catch (error) {
-    console.error(`Error in getMerchantName: ${error}`);
+    console.error(`Error in getMerchantsList: ${error}`);
     return null;
   }
 }
 
-// Function to get credit card information from the merchant API
-async function getCreditCardInfo(merchantName) {
+// Function to get credit card information for a specific merchant from the API
+async function getCreditCardInfoForMerchant(merchantName) {
   try {
     const url = `https://merchant-credit-card-reward.p.rapidapi.com/api/rapidapi/merchant_reward?query=${encodeURIComponent(
       merchantName
@@ -47,14 +52,13 @@ async function getCreditCardInfo(merchantName) {
     };
 
     const response = await axios.get(url, options);
-    console.log(response.data);
 
     if (response.status === 200) {
       const creditCards = response.data[0]?.credit_cards?.slice(0, 6);
       return creditCards;
     } else {
       console.error(
-        `Error fetching credit card information. Status code: ${response.status}`
+        `Error fetching credit card information for ${merchantName}. Status code: ${response.status}`
       );
       return null;
     }
@@ -94,41 +98,31 @@ async function main() {
       process.exit(0); // Exit without an error
     }
 
-    const merchantName = await getMerchantName(query);
+    const merchantsList = await getMerchantsList(query);
 
-    if (!merchantName) {
-      console.error("Unable to extract merchant name from the query.");
+    if (!merchantsList || merchantsList.length === 0) {
+      console.error("Unable to extract the list of merchants from the query.");
       console.log(
         JSON.stringify({
-          response: "Please provide a valid query with a merchant name.",
+          response: "Please provide a valid query with a list of merchants.",
         })
       );
       process.exit(0); // Exit without an error
     }
 
-    const creditCardInfo = await getCreditCardInfo(merchantName);
+    const creditCardInfoPromises = merchantsList.map(async (merchant) => {
+      const creditCardInfo = await getCreditCardInfoForMerchant(merchant);
+      return { merchant, creditCardInfo };
+    });
 
-    if (!creditCardInfo) {
-      console.error("Error fetching credit card information.");
-      console.log(
-        JSON.stringify({
-          response: "An error occurred while fetching credit card information.",
-        })
-      );
-      process.exit(0); // Exit without an error
-    }
+    const creditCardInfoList = await Promise.all(creditCardInfoPromises);
 
-    const messages = [
-      {
-        role: "user",
-        content: `Context: User is asking about which credit cards is best to be used for the given merchant. Make sure to be straight to the point. Dont ask the user to go to any other webiste.`,
-      },
-      { role: "user", content: `Query: ${query}` },
-      {
-        role: "assistant",
-        content: `CreditCardInfo: ${JSON.stringify(creditCardInfo)}`,
-      },
-    ];
+    const messages = creditCardInfoList.map(({ merchant, creditCardInfo }) => ({
+      role: "assistant",
+      content: `CreditCardInfo for ${merchant}: ${JSON.stringify(
+        creditCardInfo
+      )}`,
+    }));
 
     const response = await openaiCompletion(messages);
 
